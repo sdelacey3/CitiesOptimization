@@ -1,0 +1,109 @@
+import re
+cellRegex = re.compile(r'.*?,|.*?\s')
+print('Name of file:')
+fileName = input()
+table = open(fileName)
+tableContents = table.readlines()
+
+citiesList = cellRegex.findall(tableContents[0])
+
+def createDictionary():
+  distancePairs = {}
+  for i in range(1,(len(tableContents)-1)):
+    cells = cellRegex.findall(tableContents[i])
+    for j in range((i+1),(len(cells))):
+      cityOne = cells[0]
+      cityOne = cityOne[0:(len(cityOne)-1)]
+      cityTwo = citiesList[j]
+      cityTwo = cityTwo[0:(len(cityTwo)-1)]
+      cities = cityOne + ' to ' + cityTwo
+      distance = cells[j]
+      distance = int(distance[0:(len(distance)-1)])
+      distancePairs[cities] = distance
+      cities = cityTwo + ' to ' + cityOne
+      distancePairs[cities] = distance
+  return distancePairs
+
+print('Distances between cities:')
+print(createDictionary())
+print('\n')
+
+
+
+finalPath = {}
+finalDistance = 100000000000000000
+
+
+
+
+
+for i in range(len(citiesList)-1):
+  path = {}
+  distance = 0
+  step = '     '
+  duplicate = createDictionary()
+  
+  finalStep = {}
+  startLoc = (citiesList[int(i)+1])[0:1]
+  
+  for j in range(len(citiesList)-2):
+    distanceToNext = 1000000000000
+    possibleNextSteps = {}
+    
+    
+    for key,value in duplicate.items():
+      
+      if j == 0: 
+        
+        if key[0:1] == startLoc:
+          possibleNextSteps[key] = value
+      if(key[0:1] == step[len(step)-1]):
+        possibleNextSteps[key] = value
+    for key,value in possibleNextSteps.items():
+      if(value<distanceToNext):
+        distanceToNext = value
+        step = key
+    if j ==0:
+      for key,value in duplicate.items():
+        if(key[len(key)-1] == step[0:1]):
+          finalStep[key] = value
+      for key in finalStep.keys():
+        duplicate.pop(key)
+    toDelete = {}
+    for key,value in duplicate.items():
+      if(key == step):
+        toDelete[key] = value
+      if(key[0:1] == step[0:1]):
+        toDelete[key] = value
+      if(key[len(key)-1] == step[0:1]):
+        toDelete[key] = value
+    for key in toDelete.keys():
+      duplicate.pop(key)
+
+    path[step] = distanceToNext
+    distance += distanceToNext
+  
+  for key,value in finalStep.items():
+    if(key[0:1] == step[len(step)-1]):
+      distanceToNext = value
+      step = key
+  path[step] = distanceToNext
+  distance += distanceToNext
+  print('Possible Path:')
+  print(path)
+
+  print('Total Distance: ' + str(distance))
+  
+  print('')
+  if(distance < finalDistance):
+      finalDistance = distance
+      finalPath = path
+  
+  
+print('') 
+print('Best Path:')     
+print(finalPath)
+
+print('Total Distance: ' + str(finalDistance))
+
+  
